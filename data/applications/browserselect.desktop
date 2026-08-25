@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Browser Select
+GenericName=Web Browser
+Comment=Choose between browsers when opening links
+Exec=browserselect %u
+Icon=browserselect
+Terminal=false
+Categories=Network;WebBrowser;
+MimeType=x-scheme-handler/http;x-scheme-handler/https;x-scheme-handler/about;text/html;
+StartupNotify=true

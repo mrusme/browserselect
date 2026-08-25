@@ -1,0 +1,91 @@
+# Browser Select
+#
+# Copy this configuration to $XDG_CONFIG_HOME/browserselect/config.toml
+# or to $HOME/.config/browserselect/config.toml when XDG_CONFIG_HOME is unset.
+# Every key has a default, hence the file is optional and you can copy over only
+# the settings you want to change.
+
+
+# [menu]
+
+# Smallest width of the popup in pixels.
+# Note: It grows past this when a browser name needs more space.
+#
+# width = 320
+
+# Height at which the list starts scrolling, in pixels.
+#
+# max_height = 420
+
+# Edge length of the icons in pixels.
+#
+# icon_size = 20
+
+# Whether the address is shown above the list.
+# Note: Long addresses are shortened in the middle, and the scheme:// in front
+# is left out.
+#
+# show_url = true
+
+# Whether the digit that picks an entry is shown on the right of the first nine
+# rows.
+# Note: The keys work whether the digits are shown or not.
+#
+# show_numbers = true
+
+
+# [terminal]
+
+# Terminal used for the text browsers such as w3m. If unset, the terminal is
+# looked for in this order:
+# 1) The TERMINAL environment variable
+# 2) xdg-terminal-exec
+# 3) x-terminal-emulator
+# 4) Individual terminals by name (ghostty, kitty, foot, ...)
+#
+# Note: The argument that starts a command differs per terminal. Most take -e,
+# xfce4-terminal and terminator take -x, gnome-terminal, kgx and ptyxis take --,
+# and kitty and foot take the command with no argument in front of it.
+# Browser Select knows these defaults, hence this key is only needed for a
+# terminal it does not know, or to pass extra arguments.
+#
+# command = ["ghostty", "-e"]
+
+
+# [browsers]
+
+# List the automatically detected browsers you want left out. The strings are
+# matched against either the desktop entry ID or the name, case insensitive.
+#
+# hide = ["w3m", "org.mozilla.firefox.desktop"]
+
+# Pull individual entries to the top, in this order. Everything else keeps the
+# order it was found in: desktop entries first, then browsers found in PATH,
+# then text browsers.
+#
+# order = ["Firefox", "qutebrowser"]
+
+
+# Manually add entries.
+# Note: They are appended after everything that was found on the system.
+#
+
+# [[browsers.extra]]
+# name = "Firefox, private window"
+# command = ["firefox", "--private-window", "%u"]
+# icon = "firefox"
+
+# [[browsers.extra]]
+# name = "Chromium, incognito"
+# command = ["chromium", "--incognito", "%u"]
+# icon = "chromium"
+
+# [[browsers.extra]]
+# name = "curl"
+# command = ["sh", "-c", "curl -fsSL -- \"$1\" | ${PAGER:-less}", "sh", "%u"]
+# terminal = true
+
+# [[browsers.extra]]
+# name = "Copy to the clipboard"
+# command = ["wl-copy", "%u"]
+# icon = "edit-copy"

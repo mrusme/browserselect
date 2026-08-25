@@ -1,0 +1,21 @@
+.{
+    .name = .browserselect,
+    .version = "0.1.0",
+    .dependencies = .{
+        .toml = .{
+            .url = "git+https://github.com/sam701/zig-toml?ref=zig-0.16#8685923e32e8b8a795eb2715684236975a70faed",
+            .hash = "toml-0.3.0-bV14BRmKAQAWR0FT0KUKFwVJTImaFhWjSe6HfSMtNZOH",
+        },
+    },
+    .minimum_zig_version = "0.16.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+        "data/applications",
+        "config.example.toml",
+        "LICENSE",
+        "README.md",
+    },
+    .fingerprint = 0xaef1114d9450100a,
+}

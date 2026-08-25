@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install the development files
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-4-dev libglib2.0-dev
+
+    - name: Set up Zig
+      uses: mlugg/setup-zig@v2
+      with:
+        version: 0.16.0
+
+    - name: Run tests
+      run: zig build test --summary all
+
+    - name: Build
+      run: zig build -Doptimize=ReleaseSafe
+
+    - name: Package
+      run: |
+        mkdir -p dist
+        git archive --format=tar.gz \
+          --prefix="browserselect-${GITHUB_REF_NAME}/" \
+          -o "dist/browserselect-${GITHUB_REF_NAME}.tar.gz" \
+          "${GITHUB_REF_NAME}"
+        cd dist && sha256sum *.tar.gz > checksums.txt
+
+    - name: Publish
+      uses: softprops/action-gh-release@v2
+      with:
+        files: dist/*
