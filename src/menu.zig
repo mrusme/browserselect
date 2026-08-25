@@ -51,6 +51,7 @@ pub const Menu = struct {
     was_active: bool = false,
     launched: bool = false,
     closing: bool = false,
+    chosen: ?[]const u8 = null,
 
     pub fn present(self: *Menu) void {
         applyStyle();
@@ -139,7 +140,9 @@ pub const Menu = struct {
 
     fn activate(self: *Menu, index: usize) void {
         if (self.closing or index >= self.entries.len) return;
-        const started = launch.open(self.gpa, self.entries[index], self.uri, self.terminal);
+        const entry = self.entries[index];
+        const started = launch.open(self.gpa, entry, self.uri, self.terminal);
+        if (started) self.chosen = entry.id;
         self.finish(started);
     }
 

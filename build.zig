@@ -20,6 +20,10 @@ pub fn build(b: *std.Build) void {
 
     checkSystemLibraries(b);
 
+    const cexec = b.dependency("cexec", .{
+        .target = target,
+        .optimize = optimize,
+    });
     const toml = b.dependency("toml", .{
         .target = target,
         .optimize = optimize,
@@ -34,6 +38,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
         .link_libc = true,
     });
+    exe_module.addImport("cexec", cexec.module("cexec"));
     exe_module.addImport("toml", toml.module("toml"));
     exe_module.addOptions("build_options", options);
     for (system_libraries) |library| {

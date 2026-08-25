@@ -2,6 +2,10 @@
     .name = .browserselect,
     .version = "0.1.0",
     .dependencies = .{
+        .cexec = .{
+            .url = "git+https://tty.fail/mrus/cexec?ref=master#5b6134e10b001c84b840acf7629ccf3912f92a23",
+            .hash = "cexec-1.0.0-DtRvvsshAQDjRhPovKRBcPL20E9Fcuk4m29CY_UzTJ_8",
+        },
         .toml = .{
             .url = "git+https://github.com/sam701/zig-toml?ref=zig-0.16#8685923e32e8b8a795eb2715684236975a70faed",
             .hash = "toml-0.3.0-bV14BRmKAQAWR0FT0KUKFwVJTImaFhWjSe6HfSMtNZOH",

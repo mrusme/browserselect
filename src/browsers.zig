@@ -50,7 +50,7 @@ pub const Entry = struct {
         }
     }
 
-    fn matches(self: Entry, text: []const u8) bool {
+    pub fn matches(self: Entry, text: []const u8) bool {
         return std.ascii.eqlIgnoreCase(self.id, text) or std.ascii.eqlIgnoreCase(self.name, text);
     }
 };

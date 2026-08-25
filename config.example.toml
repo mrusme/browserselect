@@ -52,6 +52,18 @@
 # command = ["ghostty", "-e"]
 
 
+# [caching]
+
+# How long the browser you pick is reused for, in seconds. Within that window
+# every link opens in the same browser without asking. A value of 0 turns the
+# caching off and brings the popup up on every link.
+# Note: The choice is stored by cexec, under the command name browserselect, in
+# $XDG_CACHE_HOME/cexec/ or in $HOME/.cache/cexec/ when XDG_CACHE_HOME is unset.
+# Deleting that directory forgets the choice.
+#
+# timeout = 60
+
+
 # [browsers]
 
 # List the automatically detected browsers you want left out. The strings are

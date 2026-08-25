@@ -2,7 +2,9 @@ const std = @import("std");
 const build_options = @import("build_options");
 const c = @import("c.zig");
 const browsers = @import("browsers.zig");
+const cache_mod = @import("cache.zig");
 const config_mod = @import("config.zig");
+const launch = @import("launch.zig");
 const menu_mod = @import("menu.zig");
 const terminal_mod = @import("terminal.zig");
 const url = @import("url.zig");
@@ -90,6 +92,20 @@ pub fn main(init: std.process.Init) !u8 {
         .terminal = terminal,
     };
 
+    const store = cache_mod.Store.resolve(
+        gpa,
+        init.io,
+        init.minimal.environ,
+        loaded.value.caching.timeout,
+    );
+
+    if (store) |remembered| {
+        if (remembered.recall()) |id| {
+            defer gpa.free(id);
+            if (reuse(&state, id)) return 0;
+        }
+    }
+
     // Non-unique, because a second click on a link has to bring up its own
     // popup instead of being handed to the instance that is already running.
     const app = c.gtk_application_new(null, c.application_non_unique);
@@ -98,10 +114,31 @@ pub fn main(init: std.process.Init) !u8 {
     _ = c.g_application_run(c.cast(c.GApplication, app), 0, null);
 
     c.g_object_unref(app);
-    if (state.list) |*list| list.deinit();
+    defer if (state.list) |*list| list.deinit();
 
     const menu = state.menu orelse return 1;
+    if (menu.chosen) |id| {
+        if (store) |remembered| remembered.remember(id);
+    }
     return if (menu.launched) 0 else 1;
+}
+
+fn reuse(state: *const State, id: []const u8) bool {
+    var list = browsers.discover(
+        state.gpa,
+        state.settings.browsers,
+        exclude,
+        state.terminal != null,
+    ) catch {
+        log.warn("out of memory while looking for the remembered browser", .{});
+        return false;
+    };
+    defer list.deinit();
+
+    for (list.entries.items) |entry| {
+        if (entry.matches(id)) return launch.open(state.gpa, entry, state.uri, state.terminal);
+    }
+    return false;
 }
 
 fn onActivate(app: *c.GtkApplication, data: c.gpointer) callconv(.c) void {
@@ -153,6 +190,7 @@ fn write(io: std.Io, comptime fmt: []const u8, args: anytype) !void {
 
 test {
     _ = @import("browsers.zig");
+    _ = @import("cache.zig");
     _ = @import("config.zig");
     _ = @import("launch.zig");
     _ = @import("menu.zig");

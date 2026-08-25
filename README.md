@@ -73,7 +73,10 @@ You can also call _Browser Select_ manually using:
 browserselect https://xn--gckvb8fzb.com
 ```
 
-If you call it without an address the picked browser is started on its own.
+If you call it without an address the picked browser is started on its own. If
+you enable caching in the config then _Browser Select_ will remember the choice
+for the amount of time specified by `timeout` and won't ask you again when you
+click another link, and simply open the link in the previously selected browser.
 
 ## Configuration
 

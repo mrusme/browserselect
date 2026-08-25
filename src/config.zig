@@ -8,6 +8,7 @@ pub const Config = struct {
     menu: Menu = .{},
     terminal: Terminal = .{},
     browsers: Browsers = .{},
+    caching: Caching = .{},
 
     pub const Menu = struct {
         width: i64 = 320,
@@ -19,6 +20,10 @@ pub const Config = struct {
 
     pub const Terminal = struct {
         command: []const []const u8 = &.{},
+    };
+
+    pub const Caching = struct {
+        timeout: i64 = 60,
     };
 
     pub const Browsers = struct {
@@ -117,6 +122,7 @@ test "an empty file leaves the defaults alone" {
     try std.testing.expectEqual(@as(i64, 320), loaded.value.menu.width);
     try std.testing.expect(loaded.value.menu.show_url);
     try std.testing.expectEqual(@as(usize, 0), loaded.value.browsers.hide.len);
+    try std.testing.expectEqual(@as(i64, 60), loaded.value.caching.timeout);
 }
 
 test "keys override the defaults" {
@@ -127,6 +133,9 @@ test "keys override the defaults" {
         \\
         \\[terminal]
         \\command = ["ghostty", "-e"]
+        \\
+        \\[caching]
+        \\timeout = 0
         \\
         \\[browsers]
         \\hide = ["w3m"]
@@ -145,6 +154,7 @@ test "keys override the defaults" {
     try std.testing.expect(!loaded.value.menu.show_url);
     try std.testing.expectEqual(@as(i64, 420), loaded.value.menu.max_height);
     try std.testing.expectEqualStrings("ghostty", loaded.value.terminal.command[0]);
+    try std.testing.expectEqual(@as(i64, 0), loaded.value.caching.timeout);
     try std.testing.expectEqualStrings("w3m", loaded.value.browsers.hide[0]);
     try std.testing.expectEqualStrings("firefox.desktop", loaded.value.browsers.order[0]);
     try std.testing.expectEqual(@as(usize, 1), loaded.value.browsers.extra.len);
