@@ -18,20 +18,20 @@ you pick one with the mouse or the keyboard.
 
 ## Installation
 
-_Browser Select_ is built from source. It needs Zig 0.16 or newer and the GTK4
-and GLib development files:
+_Browser Select_ is built from source. It needs Zig 0.16 or newer and the GTK4,
+GLib and Wayland development files:
 
-| System  | Packages                       |
-| ------- | ------------------------------ |
-| Fedora  | `gtk4-devel glib2-devel`       |
-| Debian  | `libgtk-4-dev libglib2.0-dev`  |
-| Arch    | `gtk4 glib2`                   |
-| Alpine  | `gtk4.0-dev glib-dev`          |
-| Gentoo  | `gui-libs/gtk:4 dev-libs/glib` |
-| Void    | `gtk4-devel glib-devel`        |
-| FreeBSD | `gtk4 glib`                    |
-| OpenBSD | `gtk+4 glib2`                  |
-| NetBSD  | `gtk4 glib2`                   |
+| System  | Packages                                        |
+| ------- | ----------------------------------------------- |
+| Fedora  | `gtk4-devel glib2-devel wayland-devel`          |
+| Debian  | `libgtk-4-dev libglib2.0-dev libwayland-dev`    |
+| Arch    | `gtk4 glib2 wayland`                            |
+| Alpine  | `gtk4.0-dev glib-dev wayland-dev`               |
+| Gentoo  | `gui-libs/gtk:4 dev-libs/glib dev-libs/wayland` |
+| Void    | `gtk4-devel glib-devel wayland-devel`           |
+| FreeBSD | `gtk4 glib wayland`                             |
+| OpenBSD | `gtk+4 glib2 wayland`                           |
+| NetBSD  | `gtk4 glib2 wayland`                            |
 
 ```sh
 zig build -Doptimize=ReleaseSafe --prefix ~/.local
@@ -84,6 +84,17 @@ Configuration is optional and read from
 `$XDG_CONFIG_HOME/browserselect/config.toml`, or from
 `$HOME/.config/browserselect/config.toml` when `XDG_CONFIG_HOME` is unset.
 [`config.example.toml`][example] shows how to configure it.
+
+The window can be made translucent if you would want it to be using the `[menu]`
+option `opacity` (values from `0.1` to `1.0`). Compositors that implement the
+`ext-background-effect-v1` protocol, such as KWin 6.7, Hyprland 0.56, niri
+26.04, Mutter 51 and COSMIC, additionally blur the background behind it as well
+because it seems like glass-like aesthetics are big these days. For example
+Sway, however, has no blur, but it can be simulated using `static_blur = true`
+under `[menu]`, which makes _Browser Select_ draw a blurred picture of the
+screen behind the window instead. Obviously if the background behind _Browser
+Select_ is something that changes (e.g. video) this workaround won't work, but
+for your average `r/unixporn` post it should be fairly sufficient.
 
 [example]: config.example.toml
 

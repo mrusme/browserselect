@@ -8,10 +8,12 @@ const Library = struct {
 };
 
 const system_libraries = [_]Library{
-    .{ .name = "gtk4", .minimum = "4.10" },
+    .{ .name = "gtk4", .minimum = "4.12" },
     .{ .name = "gio-2.0", .minimum = "2.66" },
     .{ .name = "gobject-2.0" },
     .{ .name = "glib-2.0" },
+    .{ .name = "cairo" },
+    .{ .name = "wayland-client", .minimum = "1.20" },
 };
 
 pub fn build(b: *std.Build) void {
@@ -75,15 +77,15 @@ fn checkSystemLibraries(b: *std.Build) void {
                 \\
                 \\Browser Select needs the development files for {s}, which {s} cannot find.
                 \\
-                \\  Fedora        gtk4-devel glib2-devel
-                \\  Debian        libgtk-4-dev libglib2.0-dev
-                \\  Arch          gtk4 glib2
-                \\  Alpine        gtk4.0-dev glib-dev
-                \\  Gentoo        gui-libs/gtk:4 dev-libs/glib
-                \\  Void          gtk4-devel glib-devel
-                \\  FreeBSD       gtk4 glib
-                \\  OpenBSD       gtk+4 glib2
-                \\  NetBSD        gtk4 glib2
+                \\  Fedora        gtk4-devel glib2-devel wayland-devel
+                \\  Debian        libgtk-4-dev libglib2.0-dev libwayland-dev
+                \\  Arch          gtk4 glib2 wayland
+                \\  Alpine        gtk4.0-dev glib-dev wayland-dev
+                \\  Gentoo        gui-libs/gtk:4 dev-libs/glib dev-libs/wayland
+                \\  Void          gtk4-devel glib-devel wayland-devel
+                \\  FreeBSD       gtk4 glib wayland
+                \\  OpenBSD       gtk+4 glib2 wayland
+                \\  NetBSD        gtk4 glib2 wayland
                 \\
                 \\Set PKG_CONFIG if the tool is installed under another name, such as
                 \\pkgconf on the BSDs.

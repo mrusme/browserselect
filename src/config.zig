@@ -14,6 +14,8 @@ pub const Config = struct {
         width: i64 = 320,
         max_height: i64 = 420,
         icon_size: i64 = 20,
+        opacity: ?f64 = null,
+        static_blur: bool = false,
         show_url: bool = true,
         show_numbers: bool = true,
     };
@@ -120,6 +122,8 @@ test "an empty file leaves the defaults alone" {
     defer loaded.deinit();
 
     try std.testing.expectEqual(@as(i64, 320), loaded.value.menu.width);
+    try std.testing.expectEqual(@as(?f64, null), loaded.value.menu.opacity);
+    try std.testing.expect(!loaded.value.menu.static_blur);
     try std.testing.expect(loaded.value.menu.show_url);
     try std.testing.expectEqual(@as(usize, 0), loaded.value.browsers.hide.len);
     try std.testing.expectEqual(@as(i64, 60), loaded.value.caching.timeout);
@@ -129,6 +133,8 @@ test "keys override the defaults" {
     const source =
         \\[menu]
         \\width = 480
+        \\opacity = 0.8
+        \\static_blur = true
         \\show_url = false
         \\
         \\[terminal]
@@ -151,6 +157,8 @@ test "keys override the defaults" {
     defer loaded.deinit();
 
     try std.testing.expectEqual(@as(i64, 480), loaded.value.menu.width);
+    try std.testing.expectEqual(@as(?f64, 0.8), loaded.value.menu.opacity);
+    try std.testing.expect(loaded.value.menu.static_blur);
     try std.testing.expect(!loaded.value.menu.show_url);
     try std.testing.expectEqual(@as(i64, 420), loaded.value.menu.max_height);
     try std.testing.expectEqualStrings("ghostty", loaded.value.terminal.command[0]);
@@ -161,6 +169,13 @@ test "keys override the defaults" {
     try std.testing.expectEqualStrings("Firefox, private", loaded.value.browsers.extra[0].name);
     try std.testing.expectEqual(@as(usize, 3), loaded.value.browsers.extra[0].command.len);
     try std.testing.expect(!loaded.value.browsers.extra[0].terminal);
+}
+
+test "an opacity without a fraction is read as well" {
+    const loaded = parse(std.testing.allocator, "[menu]\nopacity = 1", "test.toml");
+    defer loaded.deinit();
+
+    try std.testing.expectEqual(@as(?f64, 1), loaded.value.menu.opacity);
 }
 
 test "a broken file falls back to the defaults" {

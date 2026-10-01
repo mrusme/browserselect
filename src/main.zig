@@ -1,6 +1,7 @@
 const std = @import("std");
 const build_options = @import("build_options");
 const c = @import("c.zig");
+const backdrop_mod = @import("backdrop.zig");
 const browsers = @import("browsers.zig");
 const cache_mod = @import("cache.zig");
 const config_mod = @import("config.zig");
@@ -46,6 +47,7 @@ const State = struct {
     settings: *const config_mod.Config,
     uri: ?[:0]const u8,
     terminal: ?terminal_mod.Terminal,
+    backdrop_source: ?backdrop_mod.Source = null,
     list: ?browsers.List = null,
     menu: ?menu_mod.Menu = null,
 };
@@ -90,6 +92,7 @@ pub fn main(init: std.process.Init) !u8 {
         .settings = &loaded.value,
         .uri = uri,
         .terminal = terminal,
+        .backdrop_source = .of(gpa, init.io, init.environ_map, loaded.value.menu.static_blur),
     };
 
     const store = cache_mod.Store.resolve(
@@ -177,6 +180,7 @@ fn onActivate(app: *c.GtkApplication, data: c.gpointer) callconv(.c) void {
         .entries = state.list.?.entries.items,
         .terminal = state.terminal,
         .uri = state.uri,
+        .backdrop_source = state.backdrop_source,
     };
     if (state.menu) |*menu| menu.present();
 }
@@ -189,7 +193,14 @@ fn write(io: std.Io, comptime fmt: []const u8, args: anytype) !void {
 }
 
 test {
+    _ = @import("backdrop.zig");
+    _ = @import("blur.zig");
     _ = @import("browsers.zig");
+    _ = @import("capture.zig");
+    _ = @import("pixels.zig");
+    _ = @import("sway.zig");
+    _ = @import("wayland/c.zig");
+    _ = @import("wayland/effect.zig");
     _ = @import("cache.zig");
     _ = @import("config.zig");
     _ = @import("launch.zig");

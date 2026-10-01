@@ -21,6 +21,16 @@
 #
 # icon_size = 20
 
+# How opaque the background of the popup is, from 0 to 1.
+# Note: Unset, it is 0.74 where the background is blurred and 0.95 elsewhere.
+#
+# opacity = 0.95
+
+# Draw a blurred picture of the screen behind the window where the compositor
+# has no blur of its own (e.g. Sway).
+#
+# static_blur = false
+
 # Whether the address is shown above the list.
 # Note: Long addresses are shortened in the middle, and the scheme:// in front
 # is left out.
