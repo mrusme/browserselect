@@ -2,3 +2,4 @@
 /zig-out/
 /dist/
 /zig-pkg/
+/_internal/**

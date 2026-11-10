@@ -1,17 +1,17 @@
 .{
     .name = .browserselect,
-    .version = "0.1.0",
+    .version = "0.2.0",
     .dependencies = .{
         .cexec = .{
-            .url = "git+https://tty.fail/mrus/cexec?ref=master#5b6134e10b001c84b840acf7629ccf3912f92a23",
-            .hash = "cexec-1.0.0-DtRvvsshAQDjRhPovKRBcPL20E9Fcuk4m29CY_UzTJ_8",
+            .url = "git+https://tty.fail/mrus/cexec?ref=v1.1.0#f8b137035e3ce1d12081a2104acc9f14dc5cf088",
+            .hash = "cexec-1.1.0-DtRvvmkhAQBCOJA7s_vSdf7yC1O4BSOqeFQWPTD_kztn",
         },
         .toml = .{
-            .url = "git+https://github.com/sam701/zig-toml?ref=zig-0.16#8685923e32e8b8a795eb2715684236975a70faed",
-            .hash = "toml-0.3.0-bV14BRmKAQAWR0FT0KUKFwVJTImaFhWjSe6HfSMtNZOH",
+            .url = "git+https://github.com/sam701/zig-toml?ref=zig-0.17#4a13e49ce7d19ac2df8b87962d9f23c0f5dd5bdd",
+            .hash = "toml-0.3.0-bV14BRmkAQDSILPPyXc31aAXPtJa1Uh8Frug3i6InAUc",
         },
     },
-    .minimum_zig_version = "0.16.0",
+    .minimum_zig_version = "0.17.1",
     .paths = .{
         "build.zig",
         "build.zig.zon",

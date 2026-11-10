@@ -208,7 +208,7 @@ pub const Menu = struct {
 
         if (self.settings.show_numbers and index < max_numbered) {
             var buffer: [4]u8 = undefined;
-            const text = std.fmt.bufPrintZ(&buffer, "{d}", .{index + 1}) catch return box;
+            const text = std.mem.printSentinel(&buffer, "{d}", .{index + 1}, 0) catch return box;
             const number = c.cast(c.GtkLabel, c.gtk_label_new(text.ptr));
             c.gtk_widget_add_css_class(c.cast(c.GtkWidget, number), number_class);
             c.gtk_box_append(c.cast(c.GtkBox, box), c.cast(c.GtkWidget, number));
@@ -430,5 +430,5 @@ test opacity {
 }
 
 test "the stylesheet names no color, because a theme that lacks the name draws nothing" {
-    try std.testing.expectEqual(@as(?usize, null), std.mem.indexOfScalar(u8, css, '@'));
+    try std.testing.expectEqual(@as(?usize, null), std.mem.findScalar(u8, css, '@'));
 }

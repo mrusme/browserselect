@@ -76,8 +76,7 @@ const Fixture = struct {
         errdefer tmp.cleanup();
         return .{
             .tmp = tmp,
-            .directory = try std.fmt.allocPrint(
-                testing.allocator,
+            .directory = try testing.allocator.print(
                 ".zig-cache/tmp/{s}/cache",
                 .{tmp.sub_path},
             ),
@@ -162,7 +161,7 @@ test "the entry is stored where cexec stores the browserselect command" {
 
     fixture.store(3600).remember("firefox");
 
-    const stored = try std.fmt.allocPrint(testing.allocator, "{s}/{s}", .{
+    const stored = try testing.allocator.print("{s}/{s}", .{
         fixture.directory,
         &cexec.Cache.fileName(cexec.Cache.digest("browserselect")),
     });

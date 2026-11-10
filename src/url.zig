@@ -10,13 +10,13 @@ pub fn resolve(gpa: Allocator, argument: []const u8) Error![:0]u8 {
     if (trimmed.len == 0 or hasSpace(trimmed)) return error.Invalid;
 
     if (hasScheme(trimmed)) {
-        const given = try gpa.dupeZ(u8, trimmed);
+        const given = try gpa.dupeSentinel(u8, trimmed, 0);
         if (valid(given)) return given;
         gpa.free(given);
         return error.Invalid;
     }
 
-    const prefixed = try std.fmt.allocPrintSentinel(gpa, "https://{s}", .{trimmed}, 0);
+    const prefixed = try gpa.printSentinel("https://{s}", .{trimmed}, 0);
     if (valid(prefixed)) return prefixed;
     gpa.free(prefixed);
     return error.Invalid;
@@ -33,7 +33,7 @@ fn valid(uri: [:0]const u8) bool {
 }
 
 fn hasScheme(text: []const u8) bool {
-    const colon = std.mem.indexOfScalar(u8, text, ':') orelse return false;
+    const colon = std.mem.findScalar(u8, text, ':') orelse return false;
     if (colon == 0) return false;
     if (!std.ascii.isAlphabetic(text[0])) return false;
     for (text[1..colon]) |byte| {
@@ -45,7 +45,7 @@ fn hasScheme(text: []const u8) bool {
 }
 
 fn hasSpace(text: []const u8) bool {
-    return std.mem.indexOfAny(u8, text, " \t\r\n") != null;
+    return std.mem.findAny(u8, text, " \t\r\n") != null;
 }
 
 test hasScheme {

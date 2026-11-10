@@ -44,7 +44,7 @@ pub fn build(b: *std.Build) void {
     exe_module.addImport("toml", toml.module("toml"));
     exe_module.addOptions("build_options", options);
     for (system_libraries) |library| {
-        exe_module.linkSystemLibrary(library.name, .{ .use_pkg_config = .force });
+        exe_module.linkSystemLibrary(library.name, .{ .use_pkg_config = .yes });
     }
 
     const exe = b.addExecutable(.{
@@ -59,7 +59,7 @@ pub fn build(b: *std.Build) void {
 
     const run = b.addRunArtifact(exe);
     run.step.dependOn(b.getInstallStep());
-    if (b.args) |args| run.addArgs(args);
+    run.addPassthruArgs();
     b.step("run", "Build and run Browser Select").dependOn(&run.step);
 
     const unit_tests = b.addTest(.{ .root_module = exe_module });
@@ -68,11 +68,12 @@ pub fn build(b: *std.Build) void {
 }
 
 fn checkSystemLibraries(b: *std.Build) void {
+    b.graph.poisonCache();
     const pkg_config = b.graph.environ_map.get("PKG_CONFIG") orelse "pkg-config";
+    const quiet: std.Build.RunOptions = .{ .stderr_behavior = .ignore };
 
     for (system_libraries) |library| {
-        var code: u8 = undefined;
-        _ = b.runAllowFail(&.{ pkg_config, "--exists", library.name }, &code, .ignore) catch {
+        if (b.runFallible(&.{ pkg_config, "--exists", library.name }, quiet) != .success) {
             std.debug.print(
                 \\
                 \\Browser Select needs the development files for {s}, which {s} cannot find.
@@ -93,19 +94,14 @@ fn checkSystemLibraries(b: *std.Build) void {
                 \\
             , .{ library.name, pkg_config });
             std.process.exit(1);
-        };
+        }
 
         const minimum = library.minimum orelse continue;
-        _ = b.runAllowFail(
-            &.{ pkg_config, "--atleast-version", minimum, library.name },
-            &code,
-            .ignore,
-        ) catch {
-            const found = b.runAllowFail(
-                &.{ pkg_config, "--modversion", library.name },
-                &code,
-                .ignore,
-            ) catch "";
+        if (b.runFallible(&.{ pkg_config, "--atleast-version", minimum, library.name }, quiet) != .success) {
+            const found = switch (b.runFallible(&.{ pkg_config, "--modversion", library.name }, quiet)) {
+                .success => |stdout| stdout,
+                .spawn_failed, .bad_exit_code, .crashed => "",
+            };
             std.debug.print(
                 \\
                 \\Browser Select needs {s} {s} or later, and this system has {s}.
@@ -113,6 +109,6 @@ fn checkSystemLibraries(b: *std.Build) void {
                 \\
             , .{ library.name, minimum, std.mem.trim(u8, found, " \t\r\n") });
             std.process.exit(1);
-        };
+        }
     }
 }

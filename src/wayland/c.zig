@@ -21,7 +21,7 @@ pub const Interface = extern struct {
     events: ?[*]const Message,
 };
 
-pub const no_types = [_]?*const Interface{null} ** 8;
+pub const no_types: [8]?*const Interface = @splat(null);
 
 pub const marshal_destroy: u32 = 1 << 0;
 
@@ -113,15 +113,15 @@ pub const Transform = enum(u32) {
     }
 
     pub fn turned(self: Transform) bool {
-        return @intFromEnum(self) & 1 != 0;
+        return @backingInt(self) & 1 != 0;
     }
 
     pub fn flipped_over(self: Transform) bool {
-        return @intFromEnum(self) & 4 != 0;
+        return @backingInt(self) & 4 != 0;
     }
 
     pub fn quarters(self: Transform) u2 {
-        return @intCast(@intFromEnum(self) & 3);
+        return @intCast(@backingInt(self) & 3);
     }
 };
 

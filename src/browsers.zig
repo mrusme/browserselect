@@ -186,7 +186,7 @@ fn addDesktopEntries(
             const name = std.mem.span(c.g_app_info_get_display_name(info) orelse
                 c.g_app_info_get_name(info) orelse continue);
             const command = std.mem.span(c.g_app_info_get_executable(info) orelse "");
-            const program = std.fs.path.basename(command);
+            const program = std.Io.Dir.path.basename(command);
 
             // We register as a browser ourselves and would otherwise show up
             // in our own list.
@@ -195,7 +195,7 @@ fn addDesktopEntries(
             if (contains(programs.items, id) or contains(programs.items, program)) continue;
             if (named(list.entries.items, name)) continue;
 
-            const kept = try arena.dupeZ(u8, name);
+            const kept = try arena.dupeSentinel(u8, name, 0);
             const identifier = if (id.len > 0) try arena.dupe(u8, id) else kept;
             try list.entries.ensureUnusedCapacity(gpa, 1);
             list.entries.appendAssumeCapacity(.{
@@ -225,7 +225,7 @@ fn addGraphical(
 
         try list.entries.append(gpa, .{
             .id = try arena.dupe(u8, candidate.program),
-            .name = try arena.dupeZ(u8, candidate.label),
+            .name = try arena.dupeSentinel(u8, candidate.label, 0),
             .icon = .{ .name = try themedIcon(arena, candidate.program, icons.generic) },
             .action = .{ .command = try argv(arena, candidate.program, &.{uri_placeholder}) },
         });
@@ -247,7 +247,7 @@ fn addTextual(
 
         try list.entries.append(gpa, .{
             .id = try arena.dupe(u8, candidate.program),
-            .name = try arena.dupeZ(u8, candidate.label),
+            .name = try arena.dupeSentinel(u8, candidate.label, 0),
             .icon = .{ .name = icons.terminal },
             .action = .{ .in_terminal = try argv(arena, candidate.program, candidate.args) },
         });
@@ -269,10 +269,10 @@ fn addExtras(
         }
 
         const parts = try arena.alloc([:0]const u8, extra.command.len);
-        for (extra.command, 0..) |part, index| parts[index] = try arena.dupeZ(u8, part);
+        for (extra.command, 0..) |part, index| parts[index] = try arena.dupeSentinel(u8, part, 0);
 
         const fallback = if (extra.terminal) icons.terminal else icons.generic;
-        const name = try arena.dupeZ(u8, extra.name);
+        const name = try arena.dupeSentinel(u8, extra.name, 0);
         try list.entries.append(gpa, .{
             .id = name,
             .name = name,
@@ -342,7 +342,7 @@ fn iconOf(info: *c.GAppInfo, icons: Icons) Icon {
 fn themedIcon(arena: Allocator, wanted: []const u8, fallback: [:0]const u8) Allocator.Error![:0]const u8 {
     const theme = iconTheme() orelse return fallback;
 
-    const name = try arena.dupeZ(u8, wanted);
+    const name = try arena.dupeSentinel(u8, wanted, 0);
     if (c.gtk_icon_theme_has_icon(theme, name.ptr) != c.FALSE) return name;
     return fallback;
 }
@@ -363,8 +363,8 @@ fn iconTheme() ?*c.GtkIconTheme {
 
 fn argv(arena: Allocator, program: []const u8, args: []const []const u8) Allocator.Error![]const [:0]const u8 {
     const parts = try arena.alloc([:0]const u8, args.len + 1);
-    parts[0] = try arena.dupeZ(u8, program);
-    for (args, 0..) |arg, index| parts[index + 1] = try arena.dupeZ(u8, arg);
+    parts[0] = try arena.dupeSentinel(u8, program, 0);
+    for (args, 0..) |arg, index| parts[index + 1] = try arena.dupeSentinel(u8, arg, 0);
     return parts;
 }
 

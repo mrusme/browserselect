@@ -93,6 +93,13 @@ fn report(parser: *const toml.Parser(Config), file_path: []const u8, err: anyerr
             "cannot read {f} in {s}: {t}, using the built-in defaults",
             .{ FieldPath{ .parts = field_path }, file_path, err },
         ),
+        .unknown_fields => |unknown| if (unknown.path.len == 0) log.warn(
+            "cannot read {s}: {d} unknown keys, using the built-in defaults",
+            .{ file_path, unknown.keys.len },
+        ) else log.warn(
+            "cannot read {f} in {s}: {d} unknown keys, using the built-in defaults",
+            .{ FieldPath{ .parts = unknown.path }, file_path, unknown.keys.len },
+        ),
     }
 }
 
@@ -109,10 +116,10 @@ const FieldPath = struct {
 
 fn path(gpa: Allocator, environ: *const std.process.Environ.Map) Allocator.Error!?[]u8 {
     if (environ.get("XDG_CONFIG_HOME")) |dir| {
-        if (dir.len > 0) return try std.fs.path.join(gpa, &.{ dir, "browserselect", "config.toml" });
+        if (dir.len > 0) return try std.Io.Dir.path.join(gpa, &.{ dir, "browserselect", "config.toml" });
     }
     if (environ.get("HOME")) |home| {
-        if (home.len > 0) return try std.fs.path.join(gpa, &.{ home, ".config", "browserselect", "config.toml" });
+        if (home.len > 0) return try std.Io.Dir.path.join(gpa, &.{ home, ".config", "browserselect", "config.toml" });
     }
     return null;
 }

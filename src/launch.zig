@@ -38,12 +38,12 @@ fn expand(
         parts.deinit(gpa);
     }
 
-    for (prefix) |part| try parts.append(gpa, try gpa.dupeZ(u8, part));
+    for (prefix) |part| try parts.append(gpa, try gpa.dupeSentinel(u8, part, 0));
 
     for (command) |part| {
         if (std.mem.eql(u8, part, browsers.uri_placeholder)) {
             const address = uri orelse continue;
-            try parts.append(gpa, try gpa.dupeZ(u8, address));
+            try parts.append(gpa, try gpa.dupeSentinel(u8, address, 0));
             continue;
         }
         try parts.append(gpa, try substitute(gpa, part, uri orelse ""));
@@ -53,13 +53,13 @@ fn expand(
 }
 
 fn substitute(gpa: Allocator, part: []const u8, uri: []const u8) Allocator.Error![:0]u8 {
-    if (std.mem.indexOf(u8, part, browsers.uri_placeholder) == null) return gpa.dupeZ(u8, part);
+    if (std.mem.find(u8, part, browsers.uri_placeholder) == null) return gpa.dupeSentinel(u8, part, 0);
 
     var out: std.ArrayList(u8) = .empty;
     errdefer out.deinit(gpa);
 
     var rest = part;
-    while (std.mem.indexOf(u8, rest, browsers.uri_placeholder)) |at| {
+    while (std.mem.find(u8, rest, browsers.uri_placeholder)) |at| {
         try out.appendSlice(gpa, rest[0..at]);
         try out.appendSlice(gpa, uri);
         rest = rest[at + browsers.uri_placeholder.len ..];
@@ -140,7 +140,7 @@ fn message(err: ?*c.GError) [*:0]const u8 {
     return detail.message orelse "no detail";
 }
 
-const detach: ?c.GSpawnChildSetupFunc = switch (builtin.os.tag) {
+const detach: ?c.GSpawnChildSetupFunc = switch (builtin.target.os.tag) {
     .windows => null,
     else => &newSession,
 };

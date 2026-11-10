@@ -9,7 +9,7 @@ const log = std.log.scoped(.capture);
 
 const screencopy = wl.screencopy;
 
-const native = builtin.cpu.arch.endian();
+const native = builtin.target.cpu.arch.endian();
 const quarter_turn = std.math.pi / 2.0;
 const frame_timeout_ms = 2000;
 const max_pixels: u64 = 1 << 28;
@@ -175,7 +175,7 @@ pub const Capture = struct {
         if (!self.until(&pending, Pending.ready)) return error.Unavailable;
 
         return .{
-            .format = @enumFromInt(pending.format),
+            .format = @fromBackingInt(@intCast(pending.format)),
             .width = pending.width,
             .height = pending.height,
             .stride = pending.stride,
@@ -264,7 +264,7 @@ fn shareable(size: usize) Error!std.posix.fd_t {
     var name_buffer: [64]u8 = undefined;
     var attempt: u32 = 0;
     const fd = while (attempt < 8) : (attempt += 1) {
-        const name = std.fmt.bufPrintZ(&name_buffer, "/browserselect-{d}-{d}", .{ std.c.getpid(), attempt }) catch
+        const name = std.mem.printSentinel(&name_buffer, "/browserselect-{d}-{d}", .{ std.c.getpid(), attempt }, 0) catch
             return error.Unavailable;
         const opened = std.c.shm_open(
             name.ptr,
@@ -355,7 +355,7 @@ pub fn compose(screen: Screen, frame: Frame) ?*c.cairo_surface_t {
 fn place(cr: *c.cairo_t, scale: f64, screen: Screen, frame: Frame) bool {
     const layout = layoutOf(frame.format) orelse {
         log.warn("this compositor uses a pixel format Browser Select cannot read: 0x{x}", .{
-            @intFromEnum(frame.format),
+            @backingInt(frame.format),
         });
         return false;
     };
@@ -548,7 +548,7 @@ test "every format the compositors offer maps to cairo" {
     try testing.expect(layoutOf(.xbgr8888).?.swapped);
     try testing.expectEqual(c.cairo_format_t.argb32, layoutOf(.abgr8888).?.format);
     try testing.expect(layoutOf(.abgr8888).?.swapped);
-    try testing.expectEqual(@as(?Layout, null), layoutOf(@enumFromInt(0x36314752)));
+    try testing.expectEqual(@as(?Layout, null), layoutOf(@fromBackingInt(@intCast(0x36314752))));
 }
 
 test "swapping red and blue leaves green, the fourth byte and the row padding alone" {

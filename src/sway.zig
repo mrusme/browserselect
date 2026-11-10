@@ -139,7 +139,7 @@ fn text(fields: std.json.ObjectMap, key: []const u8) []const u8 {
 fn frame(buffer: *[header_len]u8, kind: Message, length: u32) void {
     @memcpy(buffer[0..magic.len], magic);
     std.mem.writeInt(u32, buffer[magic.len..][0..4], length, .little);
-    std.mem.writeInt(u32, buffer[magic.len + 4 ..][0..4], @intFromEnum(kind), .little);
+    std.mem.writeInt(u32, buffer[magic.len + 4 ..][0..4], @backingInt(kind), .little);
 }
 
 const Header = struct {

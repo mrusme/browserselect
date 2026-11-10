@@ -18,8 +18,8 @@ you pick one with the mouse or the keyboard.
 
 ## Installation
 
-_Browser Select_ is built from source. It needs Zig 0.16 or newer and the GTK4,
-GLib and Wayland development files:
+_Browser Select_ is built from source. It needs Zig 0.17.1 or newer and the
+GTK4, GLib and Wayland development files:
 
 | System  | Packages                                        |
 | ------- | ----------------------------------------------- |
@@ -34,7 +34,7 @@ GLib and Wayland development files:
 | NetBSD  | `gtk4 glib2 wayland`                            |
 
 ```sh
-zig build -Doptimize=ReleaseSafe --prefix ~/.local
+zig build -Doptimize=safe --prefix ~/.local
 ```
 
 That writes `~/.local/bin/browserselect` and

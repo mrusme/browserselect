@@ -88,7 +88,7 @@ fn checkHandler(comptime T: type) void {
         .@"fn" => |info| info,
         else => @compileError(message),
     };
-    switch (function.calling_convention) {
+    switch (function.attrs.@"callconv") {
         .auto, .@"inline" => @compileError(message),
         else => {},
     }
@@ -107,7 +107,7 @@ fn checkCast(comptime T: type, comptime From: type) void {
         .pointer => |info| info,
         else => @compileError(message),
     };
-    if (pointer.size != .one or pointer.is_const) @compileError(message);
+    if (pointer.size != .one or pointer.attrs.@"const") @compileError(message);
     if (@typeInfo(pointer.child) != .@"opaque") @compileError(message);
 }
 
@@ -115,7 +115,7 @@ pub extern fn g_set_prgname(name: [*:0]const u8) void;
 pub extern fn g_find_program_in_path(program: [*:0]const u8) ?[*:0]u8;
 
 pub fn installed(gpa: std.mem.Allocator, program: []const u8) std.mem.Allocator.Error!bool {
-    const name = try gpa.dupeZ(u8, program);
+    const name = try gpa.dupeSentinel(u8, program, 0);
     defer gpa.free(name);
 
     const found = g_find_program_in_path(name.ptr) orelse return false;
